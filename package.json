@@ -1,0 +1,27 @@
+{
+  "name": "onlineacademy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "express-handlebars": "^5.2.0",
+    "express-handlebars-sections": "^1.0.1",
+    "numeral": "^2.0.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KietHoang2212/OnlineAcademy.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KietHoang2212/OnlineAcademy/issues"
+  },
+  "homepage": "https://github.com/KietHoang2212/OnlineAcademy#readme"
+}
