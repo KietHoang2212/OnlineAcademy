@@ -1,3 +1,9 @@
+/*
+Update 11/1/2020 - 00:40
+Hiện tại vẫn đang dùng biến tĩnh const lecturerID để lấy ID của lecturer đang đăng nhập
+Code hơi lằng nhằng
+*/
+
 const express = require( 'express' );
 const moment = require( 'moment' );
 const router = express.Router();
@@ -33,6 +39,7 @@ const storage = multer.diskStorage( {
     }
 } );
 const upload = multer( { storage } );
+
 // lấy từ tài khoản đăng nhập? session?
 const lecturerID = 1;
 
@@ -76,7 +83,6 @@ router.get( '/courses', async function ( req, res )
             course.rating = ( +ret.totalStars / +ret.totalStudents ).toFixed( 2 );
         }
     }
-
     res.render( 'vwLecturers/courses', {
         courses
     } );
