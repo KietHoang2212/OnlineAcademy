@@ -4,7 +4,7 @@
     <div class="card">
         {{!-- form change profile --}}
         <form class="p-2" method="POST" id="formAddCourse" enctype="multipart/form-data" action="/lecturer/add">
-            <input type="text" value="{{newCourseID}}" name="courseID">
+            <input type="hidden" value="{{newCourseID}}" name="courseID">
             <div class="form-group">
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
