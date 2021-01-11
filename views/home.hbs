@@ -39,7 +39,7 @@
 
 <div class="card">
   <h5 class="card-header">
-    Courses
+    Top View
   </h5>
   {{#if this.empty}}
   <div class="card-body">
@@ -52,7 +52,7 @@
   </form>
   <div class="card-body">
     <div class="row">
-      {{#each this.courses}}
+      {{#each this.top10views}}
       <div class="col-sm-3 mb-3">
         <a  href="/">
         <div class="card h-100">
@@ -69,7 +69,7 @@
             </p>
             {{/if}} --}}
             <p class="card-text">
-              {{Rate}}⭐ ({{NumRate}})
+              {{Rate}}⭐ ({{NumRate}} votes)
             </p>
             <h5 class="card-title text-danger">{{format Price}}</h5>
           </div>

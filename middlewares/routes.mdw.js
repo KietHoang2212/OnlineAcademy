@@ -16,10 +16,12 @@ module.exports = function (app) {
 
     // const courses = await courseModel.all();
     const courses = await courseModel.allWithDetails();
+    const top10views = await courseModel.top10Views();
     console.log(courses);
     res.render('home', {
       cats,
       courses,
+      top10views,
       empty: courses.length === 0
     });
   });
