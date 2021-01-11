@@ -37,6 +37,8 @@ CREATE TABLE `lecturers`  (
   `l_Password` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `l_Name` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `l_Email` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `l_Occupation` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `l_Description` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL, 
   `l_DOB` date NOT NULL,
   PRIMARY KEY (`l_ID`) USING BTREE
 ) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;
@@ -65,7 +67,7 @@ CREATE TABLE `courses`  (
   `CourseID` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `CatID` int(11) NOT NULL,
   `CourseName` varchar(150) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `TinyDes` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `TinyDes` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `FullDes` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `Price` int(11) NOT NULL,
   `PricePromotion` int(11),
@@ -146,7 +148,7 @@ ALTER TABLE oncourse ADD CONSTRAINT fk_oncourse_lecturers FOREIGN KEY (l_ID) REF
 -- Records of categories
 -- ----------------------------
 BEGIN;
-INSERT INTO `categories` VALUES (1, 'IT', 0), (2, 'Web', 1), (3, 'Mobile', 1);
+INSERT INTO `categories` VALUES (1, 'IT', NULL), (2, 'Web', 1), (3, 'Mobile', 1);
 COMMIT;
 
 INSERT INTO `online_courses`.`courses` (`CatID`, `CourseName`, `TinyDes`, `FullDes`, `Price`, `LastUpdate`, `Active`, `NumberSeen`) VALUES ('2', 'The Web Developer Bootcamp 2020', 'JUST COMPLETELY REDONE - The only course you need to learn web development - HTML, CSS, JS, Node, and More!', 'None', '100000', '2021/01/01', '0', '200');
@@ -168,8 +170,8 @@ INSERT INTO `online_courses`.`students` (`s_Username`, `s_Password`, `s_Name`, `
 INSERT INTO `online_courses`.`students` (`s_Username`, `s_Password`, `s_Name`, `s_Email`, `s_DOB`) VALUES ('conghuy', 'conghuy', 'Nguyen Tran Cong Huy', 'conghuy@gmail.com', '1999/02/28');
 
 
-INSERT INTO `online_courses`.`lecturers` (`l_Username`, `l_Password`, `l_Name`, `l_Email`, `l_DOB`) VALUES ('nth', 'nth', 'NTH', 'nth@gmail.com', '1951/01/01');
-INSERT INTO `online_courses`.`lecturers` (`l_Username`, `l_Password`, `l_Name`, `l_Email`, `l_DOB`) VALUES ('mourinho', 'mourinho', 'Jose Mourinho', 'JM@gmail.com', '1963/01/26');
+INSERT INTO `online_courses`.`lecturers` (`l_Username`, `l_Password`, `l_Name`, `l_Email`, `l_DOB`,`l_Occupation`,`l_Description`) VALUES ('nth', 'nth', 'NTH', 'nth@gmail.com', '1951/01/01', 'gamer','');
+INSERT INTO `online_courses`.`lecturers` (`l_Username`, `l_Password`, `l_Name`, `l_Email`, `l_DOB`,`l_Occupation`,`l_Description`) VALUES ('mourinho', 'mourinho', 'Jose Mourinho', 'JM@gmail.com', '1963/01/26','gamer','');
 
 
 INSERT INTO `online_courses`.`enrolls` (`EnrollDate`, `s_ID`, `CourseID`, `Rate`, `Comment`) VALUES ('2021/01/05', '1', '1', '5', 'Good');
@@ -210,3 +212,19 @@ INSERT INTO `online_courses`.`oncourse` (`l_ID`, `CourseID`) VALUES ('2', '9');
 INSERT INTO `online_courses`.`oncourse` (`l_ID`, `CourseID`) VALUES ('1', '10');
 INSERT INTO `online_courses`.`oncourse` (`l_ID`, `CourseID`) VALUES ('1', '11');
 INSERT INTO `online_courses`.`oncourse` (`l_ID`, `CourseID`) VALUES ('1', '2');
+
+INSERT INTO `online_courses`.`chapters` (`CourseID`, `ChapterNO`, `ChapterName`) VALUES('1','1', 'Introduction');
+INSERT INTO `online_courses`.`chapters` (`CourseID`, `ChapterNO`, `ChapterName`) VALUES('1','2', 'Conclusion');
+INSERT INTO `online_courses`.`chapters` (`CourseID`, `ChapterNO`, `ChapterName`) VALUES('2','1', 'Introduction');
+INSERT INTO `online_courses`.`chapters` (`CourseID`, `ChapterNO`, `ChapterName`) VALUES('3','1', 'Introduction');
+INSERT INTO `online_courses`.`chapters` (`CourseID`, `ChapterNO`, `ChapterName`) VALUES('4','1', 'Introduction');
+INSERT INTO `online_courses`.`chapters` (`CourseID`, `ChapterNO`, `ChapterName`) VALUES('5','1', 'Introduction');
+INSERT INTO `online_courses`.`chapters` (`CourseID`, `ChapterNO`, `ChapterName`) VALUES('6','1', 'Introduction');
+INSERT INTO `online_courses`.`chapters` (`CourseID`, `ChapterNO`, `ChapterName`) VALUES('7','1', 'Introduction');
+INSERT INTO `online_courses`.`chapters` (`CourseID`, `ChapterNO`, `ChapterName`) VALUES('8','1', 'Introduction');
+INSERT INTO `online_courses`.`chapters` (`CourseID`, `ChapterNO`, `ChapterName`) VALUES('9','1', 'Introduction');
+INSERT INTO `online_courses`.`chapters` (`CourseID`, `ChapterNO`, `ChapterName`) VALUES('10','1', 'Introduction');
+INSERT INTO `online_courses`.`chapters` (`CourseID`, `ChapterNO`, `ChapterName`) VALUES('11','1', 'Introduction');
+
+
+

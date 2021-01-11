@@ -4,39 +4,42 @@
 {{#section 'js'}}
 <script src="../utils/jquery.star-rating-svg.js"></script>
 <script>
-  $(".my-rating-4").starRating({
-  totalStars: 5,
-  starShape: 'rounded',
-  starSize: 40,
-  emptyColor: 'lightgray',
-  hoverColor: 'salmon',
-  activeColor: 'crimson',
-  useGradient: false
-});
+  $( ".my-rating-4" ).starRating( {
+    totalStars: 5,
+    starShape: 'rounded',
+    starSize: 40,
+    emptyColor: 'lightgray',
+    hoverColor: 'salmon',
+    activeColor: 'crimson',
+    useGradient: false
+  } );
 </script>
 {{/section}}
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<div class="col-sm-9">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
 
-  <div class="collapse navbar-collapse d-flex" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
+    <div class="collapse navbar-collapse d-flex" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
 
-      <li class="nav-item dropdown">
-        {{#each this.cats}}
-        <a class="nav-link dropdown-toggle" href="/{{CatID}}" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {{this.parent.CatName}}
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          {{#each this.child}}
-          <a class="dropdown-item" href="/{{this.CatID}}">{{this.CatName}}</a>
+        <li class="nav-item dropdown">
+          {{#each this.cats}}
+          <a class="nav-link dropdown-toggle" href="/{{CatID}}" id="navbarDropdown" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            {{this.parent.CatName}}
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            {{#each this.child}}
+            <a class="dropdown-item" href="/{{this.CatID}}">{{this.CatName}}</a>
+            {{/each}}
+          </div>
           {{/each}}
-        </div>
-        {{/each}}
-      </li>
-    </ul>
-  </div>
-</nav>
+        </li>
+      </ul>
+    </div>
+  </nav>
 
+<<<<<<< HEAD
 <div class="card">
   <h5 class="card-header">
     Top View
@@ -85,14 +88,64 @@
             </a>
             {{/if}}
           </div>
-        </div>
-        </a>
-      </div>
-      {{/each}}
+=======
+  <div class="card">
+    <h5 class="card-header">
+      Courses
+    </h5>
+    {{#if this.empty}}
+    <div class="card-body">
+      <p class="card-text">Không có dữ liệu.</p>
     </div>
-  </div>
-  {{/if}}
-  <div class="card-footer text-muted">
-    Footer
+    {{else}}
+    <form action="/cart/add" method="POST" id="frmAddItem">
+      <input type="hidden" name="id" id="txtProId">
+      <input type="hidden" name="quantity" id="txtQ">
+    </form>
+    <div class="card-body">
+      <div class="row">
+        {{#each this.courses}}
+        <div class="col-sm-3 mb-3">
+          <a href="/">
+            <div class="card h-100">
+              <img src="/public/images/{{CourseID}}.jpg" class="card-img-top" alt="{{CourseName}}"
+                title="{{CourseName}}">
+              <div class="card-body">
+                <h6 class="card-title">{{CourseName}}</h6>
+                <p class="card-text">
+                  {{Lecturers}}
+                </p>
+                {{!-- {{#if Rate}}
+                <p class="card-text">
+                  {{Rate}}⭐ ({{NumRate}})
+                </p>
+                {{/if}} --}}
+                <p class="card-text">
+                  {{Rate}}⭐ ({{NumRate}})
+                </p>
+                <h5 class="card-title text-danger">{{format Price}}</h5>
+              </div>
+              <div class="card-footer">
+                <a class="btn btn-sm btn-outline-primary" href="/products/detail/{{ProID}}" role="button">
+                  <i class="fa fa-eye" aria-hidden="true"></i>
+                  Details
+                </a>
+                {{#if ../isAuth}}
+                <a data-id="{{ProID}}" class="btn btn-sm btn-outline-success addItem" href="javascript:;" role="button">
+                  <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                  Add to cart
+                </a>
+                {{/if}}
+              </div>
+            </div>
+          </a>
+>>>>>>> 6eccfd803596430b3844f7248e5ffda4c0d708e0
+        </div>
+        {{/each}}
+      </div>
+    </div>
+    {{/if}}
+
   </div>
 </div>
+
