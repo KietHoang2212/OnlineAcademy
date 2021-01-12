@@ -1,5 +1,6 @@
 const db = require( '../utils/db' );
 const moment = require( 'moment' );
+const fs = require( 'fs-extra' );
 const TBL_COURSES = 'courses',
   TBL_ENROLLS = 'enrolls',
   TBL_CHAPTERS = 'chapters',
@@ -15,17 +16,17 @@ module.exports = {
   allWithDetails ()
   {
     const sql = `
-    select table1.*, GROUP_CONCAT(table2.l_Name SEPARATOR ', ') as Lecturers
-    from
-    (select c.*, count(enrolls.EnrollID) as NumRate, avg(enrolls.Rate) as Rate
-    from courses c left join enrolls on c.CourseID = enrolls.CourseID
-    group by c.CourseID) as table1
-    inner join
-    (select o.*, l.l_Name
-    from oncourse o left join lecturers l
-    on o.l_ID = l.l_ID) as table2
-    on table1.CourseID = table2.CourseID
-    group by table1.CourseID`;
+      select table1.*, GROUP_CONCAT(table2.l_Name SEPARATOR ', ') as Lecturers
+      from
+      (select c.*, count(enrolls.EnrollID) as NumRate, avg(enrolls.Rate) as Rate
+      from courses c left join enrolls on c.CourseID = enrolls.CourseID
+      group by c.CourseID) as table1
+      inner join
+      (select o.*, l.l_Name
+      from oncourse o left join lecturers l
+      on o.l_ID = l.l_ID) as table2
+      on table1.CourseID = table2.CourseID
+      group by table1.CourseID`;
     return db.load( sql );
   },
   async single ( CourseID )
@@ -133,10 +134,16 @@ module.exports = {
       const enrollDetailsCondition = {
         ChapterID: chapter.ChapterID
       };
+      console.log( 'chapter = ' + chapter.ChapterID );
+      await fs.remove( `./public/videos/video${ chapter.ChapterID }.mp4` );
       await db.del( enrollDetailsCondition, TBL_ENROLL_DETAILS );
     }
+    await fs.remove( `./public/images/${ CourseID }.jpeg` );
+    await fs.remove( `./public/images/${ CourseID }.jpeg` );
+    //delete every course's chapter
+
   },
-  async getLatestOncourseID ( CourseID )
+  async getLatestOncourseID ()
   {
     const sql = `select max(OnCourseID) as LatestOncourseID from ${ TBL_ONCOURSE } `;
     const ret = await db.load( sql );
@@ -146,6 +153,7 @@ module.exports = {
   getLecturersOfCourse ( CourseID )
   {
     const sql = `select * from ${ TBL_ONCOURSE } where CourseID = ${ CourseID } order by l_ID`;
+    // console.log( sql );
     return db.load( sql );
   },
   async edit ( data, CourseID )
@@ -165,8 +173,6 @@ module.exports = {
       Active: data.active || 0,
     };
     await db.patch( courseEntity, courseCondition, TBL_COURSES );
-
-
   },
   async editOncourse ( Lecturers, CourseID )
   {
@@ -212,22 +218,23 @@ module.exports = {
   },
 
 
-  top10Views(){
+  top10Views ()
+  {
     const sql = `
-    select table1.*, GROUP_CONCAT(table2.l_Name SEPARATOR ', ') as Lecturers
-    from
-    (select c.*, count(enrolls.EnrollID) as NumRate, avg(enrolls.Rate) as Rate
-    from courses c left join enrolls on c.CourseID = enrolls.CourseID
-    group by c.CourseID) as table1
-    inner join
-    (select o.*, l.l_Name
-    from oncourse o left join lecturers l
-    on o.l_ID = l.l_ID) as table2
-    on table1.CourseID = table2.CourseID
-    group by table1.CourseID
-    order by table1.NumberSeen desc
-    limit 10`;
+      select table1.*, GROUP_CONCAT(table2.l_Name SEPARATOR ', ') as Lecturers
+      from
+      (select c.*, count(enrolls.EnrollID) as NumRate, avg(enrolls.Rate) as Rate
+      from courses c left join enrolls on c.CourseID = enrolls.CourseID
+      group by c.CourseID) as table1
+      inner join
+      (select o.*, l.l_Name
+      from oncourse o left join lecturers l
+      on o.l_ID = l.l_ID) as table2
+      on table1.CourseID = table2.CourseID
+      group by table1.CourseID
+      order by table1.NumberSeen desc
+      limit 10`;
 
-    return db.load(sql);
+    return db.load( sql );
   }
 };
