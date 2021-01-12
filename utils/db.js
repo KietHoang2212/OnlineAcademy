@@ -9,7 +9,7 @@ const pool = mysql.createPool({
   database: 'online_courses',
   connectionLimit: 50,
 });
-
+// make pool.query() a promise
 const pool_query = util.promisify(pool.query).bind(pool);
 
 module.exports = {
