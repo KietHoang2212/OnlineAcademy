@@ -2,6 +2,7 @@ const categoryModel = require( '../models/category.model' );
 
 module.exports = function ( app )
 {
+  // sử dụng res.locals cho tiện sử dụng, rút gọn lại code
   app.use( async function ( req, res, next )
   {
     const parent_cats = await categoryModel.allChild( 0 );
