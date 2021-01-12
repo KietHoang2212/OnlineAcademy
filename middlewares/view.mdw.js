@@ -29,7 +29,6 @@ module.exports = function ( app )
       {
         if ( a == b )
         {
-
           return options.inverse( this );
         }
         return options.fn( this );
