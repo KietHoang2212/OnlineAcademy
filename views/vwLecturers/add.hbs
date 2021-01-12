@@ -11,10 +11,12 @@
                         <label class="input-group-text">Category</label>
                     </div>
                     <select class="custom-select" name="catID">
-                        {{#each parentCategories}}
-                        <optgroup label="{{CatName}}">
+                        {{#each lcCategories}}
+                        <optgroup label="{{parent.CatName}}">
                             {{#each children}}
-                            <option value="{{CatID}}">{{CatName}}</option>
+                            <option value="{{CatID}}" {{#ifeq ../CatID CatID}}selected{{/ifeq}}>
+                                {{CatName}}
+                            </option>
                             {{/each}}
                         </optgroup>
                         {{/each}}

@@ -2,13 +2,14 @@
     <h5 class="card-header">All your courses</h5>
 
     <div class="card mb-3">
-        <form action="/lecturer/delete" method="POST" id="formDeleteCourse">
+        <form method="POST" id="formDeleteCourse">
             <input id="txtCourseID" type="hidden" name="id" value="">
         </form>
         {{#each courses}}
         <div class="row g-0 m-2 shadowBox ">
             <div class="col-md-4" style="position: relative">
-                <img class="center" src="../../public/images/{{CourseID}}.jpg" alt="{{CourseName}}">
+                <img class="center card-img-top" src="../../public/images/{{CourseID}}.jpg" alt="{{CourseName}}"
+                    onerror='this.onerror = null; this.src="../../public/images/{{CourseID}}.jpeg"'>
             </div>
             <div class="col-md-6">
                 <div class="card-body">
@@ -55,7 +56,8 @@
     } );
     $( '.deleteCourse' ).on( 'click', function ()
     {
-        $( '#txtCourseID' ).val( $( this ).data( 'id' ) );
+        const CourseID = $( this ).data( 'id' );
+        $( '#formDeleteCourse' ).attr( 'action', `/lecturer/delete/${ CourseID }` );
         $( '#formDeleteCourse' ).submit();
     } )
 </script>
