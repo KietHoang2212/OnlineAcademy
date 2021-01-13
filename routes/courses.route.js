@@ -15,7 +15,7 @@ router.get('/byCat/:id', async function (req, res) {
     
 
     const courses = await courseModel.getByCatID(skip, limit, catID);
-    const fullCourses = await courseModel.getByCatID(0, 1000000007, catID);
+    const fullCourses = await courseModel.getByCatID(0, 1000, catID);
     const cat = await categoryModel.single(catID);
     res.render('vwCourses/byCat', {
         cat,
@@ -24,7 +24,30 @@ router.get('/byCat/:id', async function (req, res) {
         page,
         maxpage: Math.floor(fullCourses.length/limit) + 1,
     })
-})
+});
+
+router.get('/search', async function (req, res) {
+    const query = req.query.query;
+    const page = +req.query.page || 1;
+    const option = +req.query.option || 0;
+
+    const limit = 4;
+    const skip = limit*(page-1);
+    
+    console.log(query);
+    
+
+    const courses = await courseModel.fulltextsearch(query, skip, limit, option)
+    const fullCourses = await courseModel.fulltextsearch(query, 0, 1000, 0);
+    res.render('vwCourses/search', {
+        courses,
+        isEmpty: courses.length === 0,
+        page,
+        maxpage: Math.floor(fullCourses.length/limit) + 1,
+        query,
+        option,
+    })
+});
 
 
 

@@ -9,8 +9,11 @@
         return `${ Math.round( rating * 20 ) }%`;
     } );
 
+    const opt = +{{option}};
+    $(`#option${opt}`).attr('checked', 'checked');
 
     const maxpage = +$('#maxpage').text();
+    const query = $('#query').text();
     console.log(maxpage);
 
     currentPage = +$('#item2').text();
@@ -21,11 +24,11 @@
     
 
     const value1 = +$('#item1').text();
-    $('#item1').attr("href", `?page=${value1}`);
+    $('#item1').attr("href", `?query=${query}&option=${opt}&page=${value1}`);
     const value2 = +$('#item2').text();
-    $('#item2').attr("href", `?page=${value2}`);
+    $('#item2').attr("href", `?query=${query}&option=${opt}&page=${value2}`);
     const value3 = +$('#item3').text();
-    $('#item3').attr('href', `?page=${value3}`);
+    $('#item3').attr('href', `?query=${query}&option=${opt}&page=${value3}`);
 
     if (value1 < 1){
         $('#page-item1').hide();
@@ -36,9 +39,9 @@
         $('#page-next').addClass('disabled');
     }
 
-    $('#previous').attr('href', `?page=${currentPage-1}`)
-    $('#next').attr('href', `?page=${currentPage+1}`)
-
+    $('#previous').attr('href', `?query=${query}&option=${opt}&page=${currentPage-1}`)
+    $('#next').attr('href', `?query=${query}&option=${opt}&page=${currentPage+1}`)
+    
 </script>
 {{/section}}
 {{!-- {{#section 'js'}}
@@ -51,31 +54,32 @@
   });
 </script>
 {{/section}} --}}
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
 
-
-  <div class="collapse navbar-collapse d-flex" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-        {{#each lcCategories}}
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="/courses/byCat/{{parent.CatID}}" id="navbarDropdown" role="button"
-            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <b>{{parent.CatName}}</b>
-          </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            {{#each children}}
-            <a class="dropdown-item" href="/courses/byCat/{{CatID}}">{{CatName}}</a>
-            {{/each}}
-          </div>
-        </li>
-        {{/each}} 
-    </ul>
-  </div>
-</nav>
+<form class="my-10 my-lg-2" id="option-form">
+    <input type="hidden" id="fname" name="query" value="{{query}}" >
+    <div class="form-check">
+    <input class="form-check-input" type="radio" name="option" id="option1" value="1" onclick="this.form.submit();">
+    <label class="form-check-label" for="option1">
+        Price Ascending
+    </label>
+    </div>
+    <div class="form-check">
+    <input class="form-check-input" type="radio" name="option" id="option2" value="2"onclick="this.form.submit();">
+    <label class="form-check-label" for="option2">
+        Rate Descending
+    </label>
+    </div>
+    <div class="form-check">
+    <input class="form-check-input" type="radio" name="option" id="option0" value="0" onclick="this.form.submit();">
+    <label class="form-check-label" for="option2">
+        None
+    </label>
+    </div>
+</form>
 
 <div class="card justify-content-center"  style="margin-top: 20px">
   <h5 class="card-header">
-    {{{this.cat.CatName}}}
+    SEARCH:      {{{query}}}
   </h5>
   {{#if this.empty}}
   <div class="card-body">
@@ -164,5 +168,6 @@
     </nav>
 
     <p id="maxpage" hidden>{{maxpage}}</p>
+    <p id="query" hidden>{{query}}</p>
   </div>
 </div>
