@@ -12,8 +12,8 @@
                         <label class="input-group-text">Category</label>
                     </div>
                     <select class="custom-select" name="catID">
-                        {{#each ../parentCategories}}
-                        <optgroup label="{{CatName}}">
+                        {{#each ../lcCategories}}
+                        <optgroup label="{{parent.CatName}}">
                             {{#each children}}
                             <option value="{{CatID}}" {{#ifeq ../../CatID CatID}}selected{{/ifeq}}>
                                 {{CatName}}
@@ -21,6 +21,7 @@
                             {{/each}}
                         </optgroup>
                         {{/each}}
+
                     </select>
                 </div>
             </div>
@@ -30,9 +31,11 @@
             </div>
             {{!-- ... --}}
             <div class="form-group">
+
                 <label>Thumbnail</label>
-                <div class="card m-lg-3" style="width:20rem">
-                    <img src="/public/images/{{CourseID}}.jpg" alt="">
+                <div class="card m-lg-3 center" style="width:30%;min-height:100px">
+                    <img src="/public/images/{{CourseID}}.jpg" alt=""
+                        onerror='this.onerror = null; this.src="/public/images/{{CourseID}}.jpeg"'>
                 </div>
                 <input id="fuThumbnail" name="{{CourseID}}" type="file" class="file">
             </div>
@@ -52,8 +55,7 @@
                 <input type="hidden" id="latestOncourseID" value="{{../currentOncourseID}}">
                 {{#each ../lecturers}}
                 <div class="d-flex justify-content">
-                    <label style="position:relative; left:20px">Lecturer {{add @index 1}}'s ID:
-                    </label>
+                    <label style="position:relative; left:20px">Lecturer {{add @index 1}}' s ID: </label>
                     <input type="hidden" name="lecturers[{{@index}}][oncourseid]" value="{{OnCourseID}}">
                     <input type="text" style="width: 100px" name="lecturers[{{@index}}][id]"
                         class="form-control myInput" value="{{l_ID}}" {{#ifeq @index 0}} readonly {{/ifeq}}>

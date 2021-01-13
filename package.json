@@ -9,14 +9,23 @@
     "express-async-errors": "^3.1.1",
     "express-handlebars": "^5.2.0",
     "express-handlebars-sections": "^1.0.1",
+<<<<<<< HEAD
     "express-session": "^1.17.1",
+=======
+    "express-mysql-session": "^2.1.5",
+    "express-session": "^1.17.1",
+    "fs-extra": "^9.0.1",
+>>>>>>> b14655e42246593384a07d4095ca4f64eef882af
     "moment": "^2.29.1",
     "multer": "^1.4.2",
     "mysql": "^2.18.1",
     "nodemailer": "^6.4.17",
     "numeral": "^2.0.6",
     "passport": "^0.4.1",
+<<<<<<< HEAD
     "passport-local": "^1.0.0",
+=======
+>>>>>>> b14655e42246593384a07d4095ca4f64eef882af
     "util": "^0.12.3"
   },
   "devDependencies": {},

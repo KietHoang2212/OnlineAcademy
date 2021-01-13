@@ -6,25 +6,19 @@ module.exports = function ( app )
 {
   app.get( '/', async function ( req, res )
   {
-    const parent_cats = await categoryModel.allChild( 0 );
-    let cats = [];
-    for ( let i = 0; i < parent_cats.length; ++i )
-    {
-      let cat = {};
-      cat[ 'parent' ] = parent_cats[ i ];
-      id = +parent_cats[ i ].CatID;
-      cat[ 'child' ] = await categoryModel.allChild( id );
-      cats.push( cat );
-    }
-
-    // const courses = await courseModel.all();
     const courses = await courseModel.allWithDetails();
+<<<<<<< HEAD
     const top10views = await courseModel.topViews(10);
     const top10new = await courseModel.topNewest(10);
     console.log(cats);
     // console.log(req.isAuthenticated());
     res.render('home', {
       cats,
+=======
+    const top10views = await courseModel.top10Views();
+
+    res.render( 'home', {
+>>>>>>> b14655e42246593384a07d4095ca4f64eef882af
       courses,
       top10views,
       top10new,

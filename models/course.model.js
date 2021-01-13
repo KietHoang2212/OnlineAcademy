@@ -1,5 +1,6 @@
 const db = require( '../utils/db' );
 const moment = require( 'moment' );
+const fs = require( 'fs-extra' );
 const TBL_COURSES = 'courses',
   TBL_ENROLLS = 'enrolls',
   TBL_CHAPTERS = 'chapters',
@@ -133,10 +134,16 @@ module.exports = {
       const enrollDetailsCondition = {
         ChapterID: chapter.ChapterID
       };
+      console.log( 'chapter = ' + chapter.ChapterID );
+      await fs.remove( `./public/videos/video${ chapter.ChapterID }.mp4` );
       await db.del( enrollDetailsCondition, TBL_ENROLL_DETAILS );
     }
+    await fs.remove( `./public/images/${ CourseID }.jpeg` );
+    await fs.remove( `./public/images/${ CourseID }.jpeg` );
+    //delete every course's chapter
+
   },
-  async getLatestOncourseID ( CourseID )
+  async getLatestOncourseID ()
   {
     const sql = `select max(OnCourseID) as LatestOncourseID from ${ TBL_ONCOURSE } `;
     const ret = await db.load( sql );
@@ -146,6 +153,7 @@ module.exports = {
   getLecturersOfCourse ( CourseID )
   {
     const sql = `select * from ${ TBL_ONCOURSE } where CourseID = ${ CourseID } order by l_ID`;
+    // console.log( sql );
     return db.load( sql );
   },
   async edit ( data, CourseID )
@@ -165,8 +173,6 @@ module.exports = {
       Active: data.active || 0,
     };
     await db.patch( courseEntity, courseCondition, TBL_COURSES );
-
-
   },
   async editOncourse ( Lecturers, CourseID )
   {

@@ -57,7 +57,9 @@
     left: 0;
     right: 0;
     margin: auto;
-    width: 90%
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 10px;
 }
 
 .shadowBox {
