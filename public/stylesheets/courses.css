@@ -10,12 +10,12 @@
     transform: translate3d(0, -1px, 0)
 }
 
-.shadow {
+/* .shadow {
     overflow: hidden;
     position: relative;
     transform: translate3d(0, 0, 0)
-}
-
+} */
+/* 
 .shadow:before {
     content: "";
     display: block;
@@ -33,7 +33,7 @@
     transform: scale(10, 10);
     opacity: 0;
     transition: transform .5s, opacity 1.5s
-}
+} */
 
 .shadow:active:before {
     transform: scale(0, 0);
@@ -41,10 +41,10 @@
     transition: 0s
 }
 
-.my-button,
+/* .my-button,
 .my-2 {
     margin-bottom: .5rem !important
-}
+} */
 
 .w-xs {
     width: 100px

@@ -2,6 +2,7 @@ const db = require( '../utils/db' );
 const moment = require( 'moment' );
 const TBL_LECTURERS = 'lecturers',
     TBL_ONCOURSE = 'onCourse',
+    TBL = 'lecturers',
     TBL_COURSES = 'courses';
 //l stands for lecturer
 module.exports = {
@@ -34,5 +35,31 @@ module.exports = {
             l_Description: data.description
         };
         return db.patch( entity, condition, TBL_LECTURERS );
-    }
+    },
+
+    async singleByUserName(username) {
+        const rows = await db.load(`select * from ${TBL} where l_Username = '${username}'`);
+        if (rows.length === 0)
+          return null;
+    
+        return rows[0];
+      },
+    
+      async singleByEmail(email) {
+        const rows = await db.load(`select * from ${TBL} where l_Email = '${email}'`);
+        if (rows.length === 0)
+          return null;
+    
+        return rows[0];
+      },
+    
+      add(entity) {
+        return db.add(entity, TBL)
+      },
+    
+      update(entity, id) {
+        const condition = { l_ID: id };
+        delete entity.l_ID;
+        return db.patch(entity, condition, TBL);
+      },
 };

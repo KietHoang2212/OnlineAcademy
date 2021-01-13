@@ -50,7 +50,7 @@ router.get( '/', async function ( req, res )
 } );
 router.get( '/profile', async function ( req, res )
 {
-    const lecturer = await lecturerModel.single( lecturerID );
+    let lecturer = await lecturerModel.single( lecturerID );
     if ( lecturer !== null )
         lecturer.l_DOB = moment( lecturer.l_DOB, 'DD/MM/YYYY' ).format( 'MM-DD-YYYY' );
     res.render( 'vwLecturers/profile', {
