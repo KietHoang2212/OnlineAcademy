@@ -8,18 +8,6 @@ const auth = require('../../middlewares/lecturerauth.mdw');
 var LocalStrategy = require('passport-local').Strategy;
 var passport = require('passport');
 
-// passport.serializeUser(function(user, done) {
-//     console.log('llll');
-//     done(null, { id: user.l_id, type: 'Lecturer' });
-// });
-
-// passport.deserializeUser(function(id, done) {
-//   userModel.single(id).then(function (user) {
-//         done(null, user);
-//     }).catch(function (err) {
-//         console.log(err);
-//     })
-// });
 
 passport.use('lecturer', new LocalStrategy(
     function (username,password,done) {

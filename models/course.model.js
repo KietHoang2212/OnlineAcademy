@@ -255,4 +255,23 @@ module.exports = {
 
     return db.load(sql);
   },
+
+  async getByCatID(skip, limit, catID){
+    const sql = `
+    select table1.*, GROUP_CONCAT(table2.l_Name SEPARATOR ', ') as Lecturers
+    from
+    (select c.*, count(enrolls.EnrollID) as NumRate, round(avg(enrolls.Rate), 1) as Rate
+    from courses c left join enrolls on c.CourseID = enrolls.CourseID
+    group by c.CourseID) as table1
+    inner join
+    (select o.*, l.l_Name
+    from oncourse o left join lecturers l
+    on o.l_ID = l.l_ID) as table2
+    on table1.CourseID = table2.CourseID
+    where table1.CatID = ${catID}
+    group by table1.CourseID
+    limit ${ skip }, ${limit} `;
+
+    return db.load(sql);
+  }
 };

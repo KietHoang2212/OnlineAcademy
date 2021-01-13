@@ -18,15 +18,9 @@ app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveU
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 require( './middlewares/view.mdw' )( app );
-<<<<<<< HEAD
 // require('./middlewares/session.mdw')(app);
 require('./middlewares/locals.mdw')(app);
-=======
-require( './middlewares/session.mdw' )( app );
-require( './middlewares/locals.mdw' )( app );
->>>>>>> b14655e42246593384a07d4095ca4f64eef882af
 require( './middlewares/routes.mdw' )( app );
 require( './middlewares/error.mdw' )( app );
 

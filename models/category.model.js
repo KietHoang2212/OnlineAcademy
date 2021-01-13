@@ -40,6 +40,12 @@ module.exports = {
     const condition = { CatID: data.CatID },
       entity = { CatName: data.CatName };
     return db.patch( data, condition, TBL_CATEGORIES );
-  }
-
+  },
+  
+  async single ( CatID )
+  {
+    const rows = await db.load( `select * from ${ TBL_CATEGORIES} where CatID = ${ CatID }` );
+    if ( rows.length === 0 ) return null;
+    return rows[ 0 ];
+  },
 };

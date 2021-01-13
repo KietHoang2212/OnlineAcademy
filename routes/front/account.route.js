@@ -162,7 +162,7 @@ router.post('/register', async function (req, res) {
     to: req.body.email, // list of receivers
     subject: "Activate your account ✔", // Subject line
     text: "Hello world?", // plain text body
-    html: `<p>Click <a href="http://localhost:3000/account/activate?key=${secret}&s_Username=${user.s_Username}&s_Password=${user.s_Password}&s_DOB=${user.s_DOB}&s_Name=${user.s_Name}&s_Email=${user.s_Email}' + recovery_token + '">here</a> to active</p>`,
+    html: `<p>Click <a href="http://localhost:3000/account/activate?key=${secret}&s_Username=${user.s_Username}&s_Password=${user.s_Password}&s_DOB=${user.s_DOB}&s_Name=${user.s_Name}&s_Email=${user.s_Email}">here</a> to active</p>`,
     // html: `<a>localhost:3000/account/activate?key=${secret}&s_Username=${user.s_Username}&s_Password=${user.s_Password}&s_DOB=${user.s_DOB}&s_Name=${user.s_Name}&s_Email=${user.s_Email}</a>`, // html body
   });
 

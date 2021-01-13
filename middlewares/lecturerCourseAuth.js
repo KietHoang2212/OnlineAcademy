@@ -4,7 +4,7 @@ const courseModel = require( '../models/course.model' );
 
 
 module.exports = {
-    auth ( currentLecturer )
+    auth ()
     {
         return async function ( req, res, next )
         {
@@ -12,7 +12,7 @@ module.exports = {
             const lecturers = await courseModel.getLecturersOfCourse( CourseID );
             let accessible = false;
             for ( const lecturer of lecturers )
-                if ( lecturer.l_ID === currentLecturer )
+                if ( lecturer.l_ID === req.user.l_ID )
                 {
                     accessible = true;
                     break;
