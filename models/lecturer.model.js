@@ -34,5 +34,19 @@ module.exports = {
             l_Description: data.description
         };
         return db.patch( entity, condition, TBL_LECTURERS );
+    },
+    async singleWithDetail ( l_ID )
+    {
+        const sql = `select table1.*, count(en.s_ID) as TotalStudents
+                from (select lec.l_ID,lec.l_Name, lec.l_Occupation, lec.l_Email, lec.l_DOB,lec.l_Description, count(onc.CourseID) as TotalCourses
+                        from lecturers lec join oncourse onc on lec.l_ID=onc.l_ID
+                        group by lec.l_ID) as table1
+                left join  oncourse onc on table1.l_ID = onc.l_ID left join enrolls en on onc.CourseID= en.CourseID
+                where table1.l_ID=${ l_ID }
+                group by table1.l_ID`;
+        const ret = await db.load( sql );
+        if ( ret.length === 0 ) return null;
+        ret[ 0 ].l_DOB = moment( ret[ 0 ].l_DOB ).format( 'MM/DD/YYYY' );
+        return ret[ 0 ];
     }
 };
