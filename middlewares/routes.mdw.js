@@ -1,3 +1,4 @@
+const auth = require( './auth.mdw' );
 const categoryModel = require( '../models/category.model' );
 const courseModel = require( '../models/course.model' );
 const moment = require( 'moment' );
@@ -46,9 +47,7 @@ module.exports = function ( app )
 	} );
 
 	app.use( '/lecturer', require( '../routes/lecturer.route' ) );
-	//app.use( '/account', require( '../routes/front/account.route' ) );
-	//app.use( '/lecturer/account', require( '../routes/front/lectureraccount.route' ) );
-	//app.use( '/courses', require( '../routes/courses.route' ) );
-	app.use( '/student', require( '../routes/student.route' ) );
-
+	app.use( '/account', require( '../routes/front/account.route' ) );
+	app.use( '/lecturer/account', require( '../routes/front/lectureraccount.route' ) );
+	app.use( '/courses', require( '../routes/courses.route' ) );
 };

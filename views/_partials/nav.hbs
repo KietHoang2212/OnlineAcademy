@@ -1,3 +1,15 @@
+{{!-- {{#section 'js'}}
+<script>
+  console.log('aaaa');
+  function myFunction(){
+    const query = $("#my-input").val();
+    console.log(query);
+    $('#my-form').attr('action', `/courses/search?query=${query}`);
+  }
+</script>
+{{/section}} --}}
+
+
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow">
   <a class="navbar-brand" href="/">
     <i class="fa fa-home fa-lg"></i>
@@ -10,32 +22,36 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav">
       <li class="nav-item active">
-        <a class="nav-link" href="/">Categories</a>
+        <a class="nav-link" href="/courses/byCat/0">Categories</a>
       </li>
+      
     </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search for anything" aria-label="Search">
+    <form class="form-inline my-2 my-lg-0" method="get" id="my-form-search">
+      <input class="form-control mr-sm-2" type="search" placeholder="Search for anything" aria-label="Search" onkeyup="myFunction()" id="my-input-search" name="query">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
         <i class="fa fa-search" aria-hidden="true"></i>
         Search
       </button>
     </form>
     <form id="frmLogout" method="POST" action="/account/logout"></form>
+    <form id="frmLogoutLecturer" method="POST" action="/lecturer/account/logout"></form>
     <ul class="navbar-nav ml-auto">
-      {{#if isAuth}}
-      <li class="nav-item">
-        <a class="nav-link" href="/cart">Shopping Cart ({{cartSummary}} items)</span></a>
-      </li>
+      {{#if isStudent}}
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
           aria-haspopup="true" aria-expanded="false">
           <i class="fa fa-user" aria-hidden="true"></i>
-          Welcome, <b>{{authUser.name}}</b>!
+          Welcome, <b>{{authUser.s_Name}}</b>
         </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown" style="float: right;">
           <a class="dropdown-item" href="/account/profile">
             <i class="fa fa-user" aria-hidden="true"></i>
             Profile
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="/account/change-password">
+            <i class="fa fa-key" aria-hidden="true"></i>
+            Change Password
           </a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" href="javascript: $('#frmLogout').submit();">
@@ -44,7 +60,37 @@
           </a>
         </div>
       </li>
+      {{else if isLecturer}}
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          <i class="fa fa-user" aria-hidden="true"></i>
+          Welcome, <b>{{authUser.l_Name}}</b>
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown" style="float: right;">
+          <a class="dropdown-item" href="/lecturer/profile">
+            <i class="fa fa-user" aria-hidden="true"></i>
+            Profile
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="/lecturer/account/change-password">
+            <i class="fa fa-key" aria-hidden="true"></i>
+            Change Password
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="javascript: $('#frmLogoutLecturer').submit();">
+            <i class="fa fa-sign-out" aria-hidden="true"></i>
+            Sign Out
+          </a>
+        </div>
+      </li>
       {{else}}
+      <li class="nav-item">
+        <a class="nav-link" href="/lecturer/account/login">
+          <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i>
+          For lecturer
+        </a>
+      </li>
       <li class="nav-item">
         <a class="nav-link" href="/account/login">
           <i class="fa fa-sign-in" aria-hidden="true"></i>
@@ -61,3 +107,6 @@
     </ul>
   </div>
 </nav>
+
+
+

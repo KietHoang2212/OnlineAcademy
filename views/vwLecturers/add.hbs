@@ -30,7 +30,7 @@
             {{!-- upload anh --}}
             <div class="form-group">
                 <label for="fuThumbnail">Upload thumbnail</label>
-                <input id="fuThumbnail" name="{{newCourseID}}" type="file" class="file">
+                <input id="fuThumbnail" name="{{newCourseID}}" type="file" class="file" accept=".png, .jpg, .jpeg">
             </div>
 
             <div class="form-group">
@@ -84,7 +84,7 @@
 
                     <div class="chapterVideoUpload w-75">
                         <label>Upload video for chapter 1</label>
-                        <input class="fuVideo" name="video{{currentChapterID}}" type="file" class="file">
+                        <input class="fuVideo" name="video{{currentChapterID}}" type="file" class="file" accept="video/*">
                     </div>
                 </div>
 
