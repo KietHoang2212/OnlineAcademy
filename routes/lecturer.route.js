@@ -1,47 +1,42 @@
-/*
-Update 11/1/2020 - 00:40
-Hiện tại vẫn đang dùng biến tĩnh const lecturerID để lấy ID của lecturer đang đăng nhập
-Code hơi lằng nhằng
-*/
-const fs = require( 'fs-extra' );
 const express = require( 'express' );
 const moment = require( 'moment' );
 const router = express.Router();
 const lecturerModel = require( '../models/lecturer.model' );
 const courseModel = require( '../models/course.model' );
 const lecturerCourseAuth = require( '../middlewares/lecturerCourseAuth' );
-const auth = require('../middlewares/lecturerauth.mdw');
 const upload = require( '../middlewares/upload.mdw' );
 //const field
 
 // lấy từ tài khoản đăng nhập? session?
 // const lecturerID = 1;
 
-router.get( '/', auth, async function ( req, res )
+router.get( '/', async function ( req, res )
 {
     // thông tin của lecturer
     res.redirect( '/lecturer/profile' );
 } );
-router.get( '/profile', auth, async function ( req, res )
+router.get( '/profile', async function ( req, res )
 {
+    res.locals.lecturerMenuOption = 1;
     let lecturer = await lecturerModel.single( req.user.l_ID );
     if ( lecturer !== null )
-        lecturer.l_DOB = moment( lecturer.l_DOB, 'DD/MM/YYYY' ).format( 'MM-DD-YYYY' );
+        lecturer.l_DOB = moment( lecturer.l_DOB ).format( 'MM/DD/YYYY' );
     res.render( 'vwLecturers/profile', {
         lecturer
     } );
 } );
-router.post( '/profile', auth, async function ( req, res )
+router.post( '/profile', async function ( req, res )
 {
     await lecturerModel.editProfileOfLecturer( req.body );
     //console.log(req.body)
     res.redirect( req.headers.referer );
 } );
 //các khóa của lecturer, còn thiếu phần xử lý ảnh của course
-router.get( '/courses', auth, async function ( req, res )
+router.get( '/courses', async function ( req, res )
 {
+    res.locals.lecturerMenuOption = 3;
     const courses = await lecturerModel.getCoursesOfLecturer( req.user.l_ID );
-
+    //console.log( courses );
     for ( const course of courses )
     {
         //get students enrolled
@@ -63,14 +58,16 @@ router.get( '/courses', auth, async function ( req, res )
 } );
 
 //vào edit khóa này
-router.get( '/edit/:id',auth, lecturerCourseAuth.auth(), async function ( req, res )
+router.get( '/edit/:id', lecturerCourseAuth.auth(), async function ( req, res )
 {
+    //res.locals.lecturerMenuOption = 0;
     const courseID = req.params.id;
     const course = await courseModel.single( courseID );
     const chapters = await courseModel.getCourseChapters( courseID );
     const lecturers = await courseModel.getLecturersOfCourse( courseID );
     const latestOncourseID = await courseModel.getLatestOncourseID();
     const latestChapterID = await courseModel.getLatestChapterID();
+    const allLecturers = await lecturerModel.all();
     //nếu lecturer có quản lý course này thì cho truy cập
     res.render( 'vwLecturers/edit', {
         course,
@@ -80,9 +77,11 @@ router.get( '/edit/:id',auth, lecturerCourseAuth.auth(), async function ( req, r
         currentChapterNo: chapters.length,
         currentLecturerNo: +lecturers.length,
         currentOncourseID: +latestOncourseID.LatestOncourseID,
+        allLecturers,
+        currentLecturer: req.user.l_ID
     } );
 } );
-router.post( '/edit/:id',auth, lecturerCourseAuth.auth(), async function ( req, res )
+router.post( '/edit/:id', lecturerCourseAuth.auth(), async function ( req, res )
 {
     upload.any()( req, res, async function ( err )
     {
@@ -95,34 +94,36 @@ router.post( '/edit/:id',auth, lecturerCourseAuth.auth(), async function ( req, 
         res.redirect( req.headers.referer || '/' );
     } );
 } );
-router.post( '/delete/:id',auth, lecturerCourseAuth.auth(), async function ( req, res )
+router.post( '/delete/:id', lecturerCourseAuth.auth(), async function ( req, res )
 {
-    console.log( req.params.id );
+    //console.log( req.params.id );
     const CourseID = req.params.id;
     const courseChapters = await courseModel.getCourseChapters( CourseID );
     //xử lý xóa Course có CourseID = req.body.id
-    
+
     await courseModel.del( courseChapters, CourseID );
 
     res.redirect( req.headers.referer || '/' );
 } );
 
 //thêm khóa
-router.get( '/add',auth, async function ( req, res )
+router.get( '/add', async function ( req, res )
 {
+    res.locals.lecturerMenuOption = 2;
     // get biggest id, if null id = 1, else id = curID + 1
     const courseID = await courseModel.getLatestCourseID();
     const latestChapterID = await courseModel.getLatestChapterID();
-
+    const allLecturers = await lecturerModel.all();
+    console.log( allLecturers );
     res.render( 'vwLecturers/add', {
         newCourseID: +courseID.latestCourseID + 1,
         currentChapterID: +latestChapterID.latestChapterID + 1,
-        // static
+        allLecturers,
         currentLecturer: req.user.l_ID
     } );
 } );
 
-router.post( '/add',auth, async function ( req, res )
+router.post( '/add', async function ( req, res )
 {
     upload.any()( req, res, async function ( err )
     {
@@ -133,11 +134,5 @@ router.post( '/add',auth, async function ( req, res )
     } );
 } );
 
-router.get( '/test', async function ( req, res )
-{
 
-   
-    res.json( true );
-} );
-
-module.exports = router;;
+module.exports = router;

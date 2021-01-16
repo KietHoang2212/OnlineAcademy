@@ -6,8 +6,6 @@ const userModel = require( '../../models/students.model' );
 const lecturerModel = require( '../../models/lecturer.model' );
 const auth = require( '../../middlewares/auth.mdw' );
 
-
-
 var LocalStrategy = require( 'passport-local' ).Strategy;
 var passport = require( 'passport' );
 
@@ -21,10 +19,9 @@ passport.serializeUser( function ( user, done )
 
 passport.deserializeUser( function ( obj, done )
 {
-	console.log( obj );
+	//console.log( obj );
 	if ( obj.type === 'Student' )
 	{
-		console.log( 'sss' );
 		userModel.single( obj.id ).then( function ( user )
 		{
 			done( null, user );
@@ -88,27 +85,26 @@ router.post( '/login', async function ( req, res, next )
 	{
 		if ( err ) { return res.render( 'vwAccount/login', { layout: false, err_message: 'Invalid username or password1.' } ); }
 		if ( !user ) { return res.render( 'vwAccount/login', { layout: false, err_message: 'Invalid username or password2.' } ); }
-		req.login( user, function ( err )
+		req.login( user, async function ( err )
 		{
 			if ( err ) { return res.render( 'vwAccount/login', { layout: false, err_message: 'Invalid username or password3.' } ); }
-
 			req.session.role = 'student';
+			//console.log( req.session.enrolls );
 			let url = req.session.retUrl || '/';
 			res.redirect( url );
 		} );
 	} )( req, res, next );
-} ),
+} );
 
 
-	router.post( '/logout', async function ( req, res )
-	{
-		req.logout();
-		req.session.isAuth = false;
-		req.session.authUser = null;
-		req.session.role = null;
-		req.session.cart = [];
-		res.redirect( req.headers.referer );
-	} );
+router.post( '/logout', async function ( req, res )
+{
+	req.logout();
+	req.session.isAuth = false;
+	req.session.authUser = null;
+	req.session.role = null;
+	res.redirect( req.headers.referer );
+} );
 
 router.get( '/register', async function ( req, res )
 {
@@ -136,7 +132,7 @@ router.post( '/register', async function ( req, res )
 			pass: 'anhkiet2212'				//Password 
 		}
 	} );
-
+	//nên có countdown
 	console.log( req.body.username );
 	console.log( bcrypt.hashSync( req.body.username, 10 ) );
 	const secret = bcrypt.hashSync( req.body.username, 10 );
@@ -167,7 +163,6 @@ router.get( '/activate', async function ( req, res )
 		s_Email: req.query.s_Email,
 		// permission: 0
 	};
-
 
 	let isActive = bcrypt.compareSync( user.s_Username, secret );
 	if ( isActive )
@@ -218,7 +213,7 @@ router.post( '/profile', async function ( req, res )
 		s_Email: req.body.email,
 		// permission: 0
 	};
-	console.log( user );
+	//console.log( user );
 
 	await userModel.update( user, req.user.s_ID );
 	res.redirect( '/account/profile' );
@@ -230,7 +225,6 @@ router.get( '/change-password', auth, async function ( req, res )
 		layout: false
 	} );
 } );
-
 
 router.post( '/change-password', auth, async function ( req, res )
 {

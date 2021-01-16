@@ -14,7 +14,11 @@ module.exports = {
 	{
 		return db.load( `select * from ${ TBL_COURSES }` );
 	},
-
+	increaseNumberSeen ( CourseID )
+	{
+		const sql = `update ${ TBL_COURSES } set NumberSeen = NumberSeen + 1 where CourseID=${ CourseID }`;
+		return db.load( sql );
+	},
 	async singleWithDetail ( CourseID )
 	{
 		const sql = `
@@ -31,25 +35,24 @@ module.exports = {
 				where table1.CourseID=${ CourseID }`;
 		const ret = await db.load( sql );
 		if ( ret.length === 0 ) return null;
-		ret[ 0 ].LastUpdate = moment( ret[ 0 ].LastUpdate ).format( 'MM/DD/YYYY' );
+		ret[ 0 ].LastUpdate = moment( ret[ 0 ].LastUpdate ).format( "MM/DD/YYYY" );
 		return ret[ 0 ];
 	},
 
-
 	allWithDetails ()
 	{
-		const sql = `;
-				select table1.*, GROUP_CONCAT( table2.l_Name SEPARATOR ', ' ) as Lecturers;
-				from
-					( select c.*, count( enrolls.EnrollID ) as NumRate, round( avg( enrolls.Rate ), 1 ) as Rate
-			from courses c left join enrolls on c.CourseID = enrolls.CourseID
-			group by c.CourseID ) as table1;
-				inner join
-					( select o.*, l.l_Name
-			from oncourse o left join lecturers l
-			on o.l_ID = l.l_ID ) as table2;
-				on table1.CourseID = table2.CourseID;
-				group by table1.CourseID`;
+		const sql = `
+		select table1.*, GROUP_CONCAT( table2.l_Name SEPARATOR ', ' ) as Lecturers
+		from
+			( select c.*, count( enrolls.EnrollID ) as NumRate, round( avg( enrolls.Rate ), 1 ) as Rate
+	from courses c left join enrolls on c.CourseID = enrolls.CourseID
+	group by c.CourseID ) as table1
+		inner join
+			( select o.*, l.l_Name
+	from oncourse o left join lecturers l
+	on o.l_ID = l.l_ID ) as table2
+		on table1.CourseID = table2.CourseID
+		group by table1.CourseID`;
 		return db.load( sql );
 	},
 	async single ( CourseID )
@@ -62,7 +65,7 @@ module.exports = {
 	async getCourseFeedback ( CourseID )
 	{
 		const sql = `select c.CourseID, count(en.s_ID) as totalStudents, sum(en.Rate) as totalStars		
-			from courses c left join enrolls en on en.CourseID = c.CourseID;
+			from courses c join enrolls en on en.CourseID = c.CourseID
 			where c.CourseID = ${ CourseID } 
 			group by c.CourseID, c.CourseName`;
 		const ret = await db.load( sql );
@@ -81,6 +84,15 @@ module.exports = {
 		const sql = `select * from ${ TBL_CHAPTERS } where CourseID = ${ CourseID } order by ChapterID`;
 		return db.load( sql );
 	},
+	async getChapterTime ( ChapterID, s_ID )
+	{
+		const sql = `select Time, Done, ID as ed_ID
+				from ${ TBL_ENROLL_DETAILS } 
+				where ChapterID = ${ ChapterID } and s_ID=${ s_ID }`;
+		const ret = await db.load( sql );
+		if ( ret.length === 0 ) return { Time: 0, Done: 0 };
+		return ret[ 0 ];
+	},
 	//huy's
 	add ( data )
 	{
@@ -96,21 +108,24 @@ module.exports = {
 			Active: data.active || 0,
 			NumberSeen: 0,
 		};
-		//console.log( entity );
 		return db.add( entity, TBL_COURSES );
 	},
 	async addOncourse ( data )
 	{
+		const inLecturers = [];
 		const lecturers = data.lecturers;
 		for ( const lecturer of lecturers )
 		{
-			if ( lecturer.id === '' ) continue;
+			if ( lecturer.id === '' || inLecturers[ `${ lecturer.id }` ] === true )
+				continue;
 			const entity = {
 				l_ID: lecturer.id,
 				CourseID: data.courseID
 			};
 			//console.log( entity );
+			//console.log( inLecturers );
 			await db.add( entity, TBL_ONCOURSE );
+			inLecturers[ `${ lecturer.id }` ] = true;
 		}
 	},
 	async addChapters ( data )
@@ -166,7 +181,6 @@ module.exports = {
 		await fs.remove( `./ public / images / ${ CourseID }.jpeg` );
 		await fs.remove( `./ public / images / ${ CourseID }.jpeg` );
 		//delete every course's chapter
-
 	},
 	async getLatestOncourseID ()
 	{
@@ -197,16 +211,21 @@ module.exports = {
 			FullDes: data.fullDes,
 			Price: +data.price || 0,
 			PricePromotion: +data.pricePromotion || 0,
-			LastUpdate: moment().format( 'YYYY-MM-DD' ),
+			LastUpdate: moment().format( "YYYY-MM-DD" ),
 			Active: data.active || 0,
 		};
 		await db.patch( courseEntity, courseCondition, TBL_COURSES );
 	},
 	async editOncourse ( Lecturers, CourseID )
 	{
+		let inLecturers = [];
+		console.log( Lecturers );
 		for ( const lecturer of Lecturers )
 		{
-			console.log( lecturer );
+			//console.log( lecturer );
+			if ( lecturer.id === '' || inLecturers[ `${ lecturer.id }` ] === true )
+				continue;
+			inLecturers[ `${ lecturer.id }` ] = true;
 			const oncourseCondition = {
 				OnCourseID: lecturer.oncourseid,
 			};
@@ -216,12 +235,12 @@ module.exports = {
 				l_ID: lecturer.id,
 			};
 			const ret = await db.load( `select * from ${ TBL_ONCOURSE }
-				where OnCourseID = ${ lecturer.oncourseid } ` );
-
+										where OnCourseID = ${ lecturer.oncourseid } ` );
 			if ( ret.length === 0 )
 				await db.add( oncourseEntity, TBL_ONCOURSE );
 			else
 				await db.patch( oncourseEntity, oncourseCondition, TBL_ONCOURSE );
+
 		}
 	},
 	async editChapters ( Chapters, CourseID )
@@ -239,149 +258,166 @@ module.exports = {
 
 			const ret = await db.load( `select * from ${ TBL_CHAPTERS } where ChapterID = ${ chapter.id } ` );
 			if ( ret.length === 0 )
-				await db.add( chapterEntity, TBL_CHAPTERS );
+				await db.add( { ...chapterCondition, ...chapterEntity }, TBL_CHAPTERS );
 			else
 				await db.patch( chapterEntity, chapterCondition, TBL_CHAPTERS );
 		}
 	},
 	getStudentFeedback ( CourseID )
 	{
-		const sql = `;
-			select c.CourseID, en.Comment, en.s_ID, en.Rate, s.s_Name;
-			from courses c left join enrolls en on en.CourseID = c.CourseID;
-			join students s on en.s_ID = s.s_ID;
-			where c.CourseID = ${ CourseID } `;
+		const sql = `
+			select c.CourseID, en.Comment, en.s_ID, en.Rate, s.s_Name
+			from courses c left join enrolls en on en.CourseID = c.CourseID
+			join students s on en.s_ID = s.s_ID
+			where c.CourseID = ${ CourseID } and en.Rate is not null  `;
 		return db.load( sql );
 	},
 	async getCoursesByTotalStudents ( Category, CourseException, MaxCourse )
 	{
-		const sql = `select table1.*, cat.CatName, table1.Price * ( 1 - table1.PricePromotion / 100.0 ) as CurrentPrice;
+		const sql = `select table1.*, cat.CatName, table1.Price * ( 1 - table1.PricePromotion / 100.0 ) as CurrentPrice
 			from( select c.*, en.EnrollID, count( en.Rate ) as NumRate, avg( en.Rate ) as Rate, count( en.EnrollID ) as TotalStudents 
 									from courses c left join  enrolls en on c.CourseID = en.CourseID
-									group by c.CourseID ) as table1;
-			inner join categories cat on table1.CatID = cat.CatID;
+									group by c.CourseID ) as table1
+			inner join categories cat on table1.CatID = cat.CatID
 			where table1.CatID = ${ Category } and table1.CourseID <> ${ CourseException }
-			group by table1.CourseID;
-			order by TotalStudents desc;
+			group by table1.CourseID
+			order by TotalStudents desc
 			limit ${ MaxCourse } `;
 		const courses = await db.load( sql );
 		for ( const course of courses )
 		{
-			course.LastUpdate = moment( course.LastUpdate ).format( 'MM/DD/YYYY' );
+			course.LastUpdate = moment( course.LastUpdate ).format( "MM/DD/YYYY" );
 			if ( course.Rate !== null )
 				course.Rate = course.Rate.toFixed( 2 );
 		}
 		return courses;
 	},
-	async increaseNumberSeen ( CourseID )
-	{
-		const condition = { CourseID };
-		const entity = { NumberSeen };
-		await db.patch( entity, condition, TBL_COURSES );
-	},
+
 	top10Views ()
 	{
-		const sql = `;
-		select table1.*, GROUP_CONCAT( table2.l_Name SEPARATOR ', ' ) as Lecturers;
-		from
-			( select c.*, count( enrolls.EnrollID ) as NumRate, avg( enrolls.Rate ) as Rate
-					from courses c left join enrolls on c.CourseID = enrolls.CourseID
-					group by c.CourseID ) as table1;
-		inner join
-			( select o.*, l.l_Name
-					from oncourse o left join lecturers l
-					on o.l_ID = l.l_ID ) as table2;
-		on table1.CourseID = table2.CourseID;
-		group by table1.CourseID;
-		order by table1.NumberSeen desc;
-		limit 10`;
+		const sql = `
+			select table1.*, GROUP_CONCAT(table2.l_Name SEPARATOR ', ') as Lecturers
+			from
+			(select c.*, count(enrolls.EnrollID) as NumRate, avg(enrolls.Rate) as Rate
+			from courses c left join enrolls on c.CourseID = enrolls.CourseID
+			group by c.CourseID) as table1
+			inner join
+			(select o.*, l.l_Name
+			from oncourse o left join lecturers l
+			on o.l_ID = l.l_ID) as table2
+			on table1.CourseID = table2.CourseID
+			group by table1.CourseID
+			order by table1.NumberSeen desc
+			limit 10`;
 		return db.load( sql );
 	},
 
 	topViews ( num )
 	{
-		const sql = `;
-		select table1.*, GROUP_CONCAT( table2.l_Name SEPARATOR ', ' ) as Lecturers, s.CatName;
-		from
-			( select c.*, count( enrolls.EnrollID ) as NumRate, round( avg( enrolls.Rate ), 1 ) as Rate
-					from courses c left join enrolls on c.CourseID = enrolls.CourseID
-					group by c.CourseID ) as table1;
-		inner join
-			( select o.*, l.l_Name
-					from oncourse o left join lecturers l
-					on o.l_ID = l.l_ID ) as table2;
-		on table1.CourseID = table2.CourseID;
-		inner join categories s;
-		on table1.CatID = s.CatID;
-		group by table1.CourseID;
-		order by table1.NumberSeen desc;
-		limit ${ num } `;
+		const sql = `
+			select table1.*, GROUP_CONCAT(table2.l_Name SEPARATOR ', ') as Lecturers, s.CatName
+			from
+			(select c.*, count(enrolls.EnrollID) as NumRate, round(avg(enrolls.Rate), 1) as Rate
+			from courses c left join enrolls on c.CourseID = enrolls.CourseID
+			group by c.CourseID) as table1
+			inner join
+			(select o.*, l.l_Name
+			from oncourse o left join lecturers l
+			on o.l_ID = l.l_ID) as table2
+			on table1.CourseID = table2.CourseID
+			inner join categories s
+			on table1.CatID = s.CatID
+			group by table1.CourseID
+			order by table1.NumberSeen desc
+			limit ${ num }`;
+		return db.load( sql );
+	},
+
+	topNewest ( num )
+	{
+		const sql = `
+			select table1.*, GROUP_CONCAT(table2.l_Name SEPARATOR ', ') as Lecturers, s.CatName
+			from
+			(select c.*, count(enrolls.EnrollID) as NumRate, round(avg(enrolls.Rate), 1) as Rate
+			from courses c left join enrolls on c.CourseID = enrolls.CourseID
+			group by c.CourseID) as table1
+			inner join
+			(select o.*, l.l_Name
+			from oncourse o left join lecturers l
+			on o.l_ID = l.l_ID) as table2
+			on table1.CourseID = table2.CourseID
+			inner join categories s
+			on table1.CatID = s.CatID
+			group by table1.CourseID
+			order by table1.LastUpdate desc
+			limit ${ num }`;
+
 		return db.load( sql );
 	},
 
 
 	async getByCatID ( skip, limit, catID )
 	{
-		const sql = `;
-			select table1.*, GROUP_CONCAT( table2.l_Name SEPARATOR ', ' ) as Lecturers, s.CatName;
+		const sql = `
+			select table1.*, GROUP_CONCAT( table2.l_Name SEPARATOR ', ' ) as Lecturers, s.CatName
 			from
 				( select c.*, count( enrolls.EnrollID ) as NumRate, round( avg( enrolls.Rate ), 1 ) as Rate
 						from courses c left join enrolls on c.CourseID = enrolls.CourseID
-						group by c.CourseID ) as table1;
+						group by c.CourseID ) as table1
 			inner join
 				( select o.*, l.l_Name
 						from oncourse o left join lecturers l
-						on o.l_ID = l.l_ID ) as table2;
-			on table1.CourseID = table2.CourseID;
-			inner join categories s;
-			on table1.CatID = s.CatID;
+						on o.l_ID = l.l_ID ) as table2
+			on table1.CourseID = table2.CourseID
+			inner join categories s
+			on table1.CatID = s.CatID
 			where table1.CatID = ${ catID }
-			group by table1.CourseID;
+			group by table1.CourseID
 			limit ${ skip }, ${ limit } `;
 		return db.load( sql );
 	},
 
 	async fulltextsearch ( query, skip, limit, opt )
 	{
-		let sql = `;
-	select tbl.*
-		from
-			( ( select table2.*, GROUP_CONCAT( table3.l_Name SEPARATOR ', ' ) as Lecturers, s.CatName
-				from
-					( select table1.*, count( enrolls.EnrollID ) as NumRate, avg( enrolls.Rate ) as Rate
-				from
-							( select *
-								from courses
-				where
-				match( CourseName )
-					against( '${ query }' ) ) as table1
-				left join enrolls on table1.CourseID = enrolls.CourseID
-				group by table1.CourseID ) as table2
-				inner join
-				( select o.*, l.l_Name
-				from oncourse o left join lecturers l
-				on o.l_ID = l.l_ID ) as table3
-				on table2.CourseID = table3.CourseID
-				inner join categories s
-				on table2.CatID = s.CatID
-				group by table2.CourseID );
-	union
-		(
-			select table1_.*, GROUP_CONCAT( table2_.l_Name SEPARATOR ', ' ) as Lecturers, s_.CatName
-				from
-				( select c_.*, count( enrolls.EnrollID ) as NumRate, avg( enrolls.Rate ) as Rate
-				from courses c_ left join enrolls on c_.CourseID = enrolls.CourseID
-				group by c_.CourseID ) as table1_
-				inner join
-			( select o_.*, l_.l_Name
-				from oncourse o_ left join lecturers l_
-				on o_.l_ID = l_.l_ID ) as table2_
-				on table1_.CourseID = table2_.CourseID
-				inner join( select * from categories s1_ where match( s1_.CatName ) against( '${ query }' ) ) as s_
-				on table1_.CatID = s_.CatID
-				group by table1_.CourseID
-		)) as tbl
-		`;
+		let sql = `
+    select tbl.*
+    from
+    ((select table2.*, GROUP_CONCAT(table3.l_Name SEPARATOR ', ') as Lecturers, s.CatName
+    from
+    (select table1.*, count(enrolls.EnrollID) as NumRate, avg(enrolls.Rate) as Rate
+    from
+    (select *
+    from courses
+    where
+      match(CourseName)
+        against('${ query }')) as table1
+    left join enrolls on table1.CourseID = enrolls.CourseID
+    group by table1.CourseID) as table2
+    inner join
+    (select o.*, l.l_Name
+    from oncourse o left join lecturers l
+    on o.l_ID = l.l_ID) as table3
+    on table2.CourseID = table3.CourseID
+    inner join categories s
+    on table2.CatID = s.CatID
+    group by table2.CourseID)
+    union
+    (
+    select table1_.*, GROUP_CONCAT(table2_.l_Name SEPARATOR ', ') as Lecturers, s_.CatName
+    from
+    (select c_.*, count(enrolls.EnrollID) as NumRate, avg(enrolls.Rate) as Rate
+    from courses c_ left join enrolls on c_.CourseID = enrolls.CourseID
+    group by c_.CourseID) as table1_
+    inner join
+    (select o_.*, l_.l_Name
+    from oncourse o_ left join lecturers l_
+    on o_.l_ID = l_.l_ID) as table2_
+    on table1_.CourseID = table2_.CourseID
+    inner join (select * from categories s1_ where match(s1_.CatName) against('${ query }')) as s_
+    on table1_.CatID = s_.CatID
+    group by table1_.CourseID
+    )) as tbl
+    `;
 		if ( opt === 1 )
 		{
 			sql += 'order by tbl.Price asc ';
@@ -389,30 +425,7 @@ module.exports = {
 		{
 			sql += 'order by tbl.Rate desc ';
 		}
-		sql += `limit ${ skip }, ${ limit } `;
-		return db.load( sql );
-	},
-
-
-	topNewest ( num )
-	{
-		const sql = `;
-		select table1.*, GROUP_CONCAT( table2.l_Name SEPARATOR ', ' ) as Lecturers, s.CatName;
-		from
-			( select c.*, count( enrolls.EnrollID ) as NumRate, round( avg( enrolls.Rate ), 1 ) as Rate
-			from courses c left join enrolls on c.CourseID = enrolls.CourseID
-			group by c.CourseID ) as table1;
-		inner join
-			( select o.*, l.l_Name
-			from oncourse o left join lecturers l
-			on o.l_ID = l.l_ID ) as table2;
-		on table1.CourseID = table2.CourseID;
-		inner join categories s;
-		on table1.CatID = s.CatID;
-		group by table1.CourseID;
-		order by table1.LastUpdate desc;
-		limit ${ num } `;
-
+		sql += `limit ${ skip }, ${ limit }`;
 		return db.load( sql );
 	},
 };

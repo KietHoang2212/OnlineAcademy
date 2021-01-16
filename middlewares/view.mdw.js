@@ -11,10 +11,21 @@ module.exports = function ( app )
     partialsDir: 'views/_partials',
     helpers: {
       section: hbs_sections(),
+
+      compare ( a, b )
+      {
+        if ( a == b ) return true;
+        return null;
+      },
       format ( val )
       {
         return numeral( val ).format( '0,0' );
       },
+      change ( val, x )
+      {
+        val = x;
+      }
+      ,
       add ( a, b )
       {
         return a + b;

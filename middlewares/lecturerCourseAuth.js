@@ -16,7 +16,6 @@ module.exports = {
                 {
                     accessible = true;
                     break;
-
                 }
             if ( accessible === false )
                 return res.redirect( '/lecturer/courses/' );

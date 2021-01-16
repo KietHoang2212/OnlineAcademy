@@ -20,7 +20,7 @@ module.exports = {
 	{
 		const sql = `select c.*
                     from lecturers lec left join oncourse onc on lec.l_ID = onc.l_ID 
-                    left join courses c on onc.CourseID = c.CourseID
+                     join courses c on onc.CourseID = c.CourseID
                     where lec.l_ID = ${ l_ID }`;
 		return db.load( sql );
 	},
@@ -30,7 +30,7 @@ module.exports = {
 		const entity = {
 			l_Name: data.name,
 			l_Email: data.email,
-			l_DOB: moment( data.dob, 'MM/DD/YYYY' ).format( 'YYYY-MM-DD' ),
+			l_DOB: moment( data.dob ).format( "YYYY/MM/DD" ),
 			l_Occupation: data.occupation,
 			l_Description: data.description
 		};
