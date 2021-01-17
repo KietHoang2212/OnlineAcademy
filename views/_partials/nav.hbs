@@ -12,7 +12,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow">
   <a class="navbar-brand" href="/">
-    <i class="fa fa-home fa-lg"></i>
+    <i class="fas fa-home fa-lg" style="color:blue"></i>
   </a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,7 +35,9 @@
     </form>
     <form id="frmLogout" method="POST" action="/account/logout"></form>
     <form id="frmLogoutLecturer" method="POST" action="/lecturer/account/logout"></form>
+    <form id="frmLogoutAdmin" method="POST" action="/admin/account/logout"></form>
     <ul class="navbar-nav ml-auto">
+      {{#if isAuth}}
       {{#if isStudent}}
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
@@ -84,6 +86,31 @@
           </a>
         </div>
       </li>
+      {{else if isAdmin}}
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          <i class="fa fa-user" aria-hidden="true"></i>
+          Welcome, <b>{{authUser.a_Name}}</b>
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown" style="float: right;">
+          <a class="dropdown-item" href="/admin/account/profile">
+            <i class="fa fa-user" aria-hidden="true"></i>
+            Profile
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="/admin/account/change-password">
+            <i class="fa fa-key" aria-hidden="true"></i>
+            Change Password
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="javascript: $('#frmLogoutAdmin').submit();">
+            <i class="fa fa-sign-out" aria-hidden="true"></i>
+            Sign Out
+          </a>
+        </div>
+      </li>
+      {{/if}}
       {{else}}
       <li class="nav-item">
         <a class="nav-link" href="/lecturer/account/login">
@@ -107,6 +134,7 @@
     </ul>
   </div>
 </nav>
+
 
 
 

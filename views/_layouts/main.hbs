@@ -40,6 +40,36 @@
       <div class="col-sm-10 border-10">{{{body}}}</div>
     </div>
   </div>
+  {{else if isAdmin}}
+  {{!-- này là dành cho admin, dùng ifel để thể hiện từng body--}}
+  <div class="container-fluid ml-0 mt-2 ">
+    <div class="row m-0 p-0">
+      <div class="col-sm-2">
+        <div class="card mb-3 h-auto ">
+          <h5 class="card-header">Menu</h5>
+          <div class="list-group list-group-flush text-justify">
+            <a href="/admin/categories" class="list-group-item list-group-item-action">
+              <i class="fa fa-list-alt"></i>
+              Categories
+            </a>
+            <a href="/admin/courses" class="list-group-item list-group-item-action">
+              <i class="fas fa-atom"></i>
+              Courses
+            </a>
+            <a href="/admin/students" class="list-group-item list-group-item-action ">
+              <i class="fas fa-graduation-cap"></i>
+              Students
+            </a>
+            <a href="/admin/lecturers" class="list-group-item list-group-item-action ">
+              <i class="fas fa-chalkboard-teacher"></i>
+              Lecturers
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-10 border-10">{{{body}}}</div>
+    </div>
+  </div>
   {{else}}
   <div class="container-fluid ml-0 mt-2 justify-content-center">
     <div class="row m-0 p-0">

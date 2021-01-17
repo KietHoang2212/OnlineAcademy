@@ -62,4 +62,9 @@ module.exports = {
         delete entity.l_ID;
         return db.patch(entity, condition, TBL);
       },
+
+      async delById(id) {
+        const condition = {l_ID: id};
+        return db.del(condition, TBL);
+      }
 };

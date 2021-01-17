@@ -4,6 +4,7 @@ const moment = require('moment');
 
 const userModel = require('../../models/students.model');
 const lecturerModel = require('../../models/lecturer.model');
+const adminModel = require('../../models/admin.model');
 const auth = require('../../middlewares/auth.mdw');
 
 
@@ -23,12 +24,14 @@ passport.serializeUser(function(user, done) {
     done(null, { id: user.s_ID, type: 'Student' });
   else if (user.l_Username !== undefined)
     done(null, { id: user.l_ID, type: 'Lecturer' });
+  else if (user.a_Username !== undefined)
+    done(null, { id: user.a_ID, type: 'Admin' });
 });
 
 passport.deserializeUser(function(obj, done) {
   console.log(obj);
   if (obj.type === 'Student'){
-    console.log('sss');
+    // console.log('sss');
     userModel.single(obj.id).then(function (user) {
           done(null, user);
       }).catch(function (err) {
@@ -40,6 +43,12 @@ passport.deserializeUser(function(obj, done) {
       }).catch(function (err) {
           console.log(err);
       })
+  }else if (obj.type === 'Admin'){
+    adminModel.single(obj.id).then(function (user) {
+        done(null, user);
+    }).catch(function (err) {
+        console.log(err);
+    })
   }
 });
 
@@ -50,6 +59,11 @@ passport.use('student', new LocalStrategy(
               if (err) { return done(err); }
               if(!result) {
                   return done(null, false, { message: 'Incorrect username and password' });
+              }
+              console.log(user.s_IsActive);
+              if (user.s_IsActive === 0){
+                console.log('LOCK');
+                return done(null, false, { message: 'Your Account has been locked' });
               }
               console.log(password);
               return done(null, user);
@@ -108,7 +122,7 @@ router.get('/login', async function (req, res) {
 router.post('/login', async function(req, res, next) {
   passport.authenticate('student', function(err, user, info) {
     if (err) { return res.render('vwAccount/login', {layout: false, err_message: 'Invalid username or password1.'});  }
-    if (!user) { return res.render('vwAccount/login', {layout: false, err_message: 'Invalid username or password2.'}); }
+    if (!user) { return res.render('vwAccount/login', {layout: false, err_message: info.message}); }
     req.login(user, function(err) {
       if (err) { return res.render('vwAccount/login', {layout: false, err_message: 'Invalid username or password3.'});  }
 
@@ -142,6 +156,7 @@ router.post('/register', async function (req, res) {
     s_DOB: dob,
     s_Name: req.body.name,
     s_Email: req.body.email,
+    s_IsActive: '1',
     // permission: 0
   }
 
@@ -181,6 +196,7 @@ router.get('/activate', async function (req, res) {
     s_DOB: req.query.s_DOB,
     s_Name: req.query.s_Name,
     s_Email: req.query.s_Email,
+    s_IsActive: '1',
     // permission: 0
   }
 
@@ -208,15 +224,15 @@ router.get('/is-available', async function (req, res) {
 router.get('/profile', auth, async function (req, res) {
   let userInfo = req.user;
   if ( userInfo !== null )
-    userInfo.s_DOB = moment( userInfo.s_DOB, 'DD/MM/YYYY' ).format( 'MM-DD-YYYY' );
+    userInfo.s_DOB = moment( userInfo.s_DOB, 'DD/MM/YYYY' ).format( 'MM/DD/YYYY' );
   console.log(userInfo);
   res.render('vwAccount/profile', {
     userInfo,
   });
 })
 
-router.post('/profile', async function (req, res) {
-  const hash = bcrypt.hashSync(req.body.password, 10);
+router.post('/profile', auth, async function (req, res) {
+  // const hash = bcrypt.hashSync(req.body.password, 10);
   const dob = moment(req.body.dob, 'MM/DD/YYYY').format('YYYY-MM-DD');
   // let user = req.user;
 

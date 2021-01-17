@@ -232,6 +232,7 @@ module.exports = {
     on table1.CourseID = table2.CourseID
     inner join categories s
     on table1.CatID = s.CatID
+    where table1.IsDisable = 0
     group by table1.CourseID
     order by table1.NumberSeen desc
     limit ${ num }`;
@@ -253,6 +254,7 @@ module.exports = {
     on table1.CourseID = table2.CourseID
     inner join categories s
     on table1.CatID = s.CatID
+    where table1.IsDisable = 0
     group by table1.CourseID
     order by table1.LastUpdate desc
     limit ${ num }`;
@@ -274,7 +276,7 @@ module.exports = {
     on table1.CourseID = table2.CourseID
     inner join categories s
     on table1.CatID = s.CatID
-    where table1.CatID = ${catID}
+    where table1.CatID = ${catID} and table1.IsDisable = 0
     group by table1.CourseID
     limit ${ skip }, ${limit} `;
 
@@ -283,11 +285,11 @@ module.exports = {
 
   async fulltextsearch(query, skip, limit, opt){
     let sql = `
-    select tbl.*
+    select tbl.*, (tbl.LastUpdate > NOW() - INTERVAL 1 WEEK) as IsNew, e_.IsBestseller
     from
     ((select table2.*, GROUP_CONCAT(table3.l_Name SEPARATOR ', ') as Lecturers, s.CatName
     from
-    (select table1.*, count(enrolls.EnrollID) as NumRate, avg(enrolls.Rate) as Rate
+    (select table1.*, count(enrolls.EnrollID) as NumRate, round(avg(enrolls.Rate), 1) as Rate
     from
     (select *
     from courses
@@ -308,7 +310,7 @@ module.exports = {
     (
     select table1_.*, GROUP_CONCAT(table2_.l_Name SEPARATOR ', ') as Lecturers, s_.CatName
     from
-    (select c_.*, count(enrolls.EnrollID) as NumRate, avg(enrolls.Rate) as Rate
+    (select c_.*, count(enrolls.EnrollID) as NumRate, round(avg(enrolls.Rate), 1) as Rate
     from courses c_ left join enrolls on c_.CourseID = enrolls.CourseID
     group by c_.CourseID) as table1_
     inner join
@@ -320,6 +322,10 @@ module.exports = {
     on table1_.CatID = s_.CatID
     group by table1_.CourseID
     )) as tbl
+    left join
+    (SELECT e.CourseID, (count(e.EnrollID) > 2) as IsBestseller FROM enrolls e where e.EnrollDate > NOW() - INTERVAL 1 WEEK group by e.CourseID) as e_
+    on tbl.CourseID = e_.CourseID
+    where tbl.IsDisable = 0
     `;
     if (opt === 1){
       sql += 'order by tbl.Price asc ';
@@ -328,6 +334,93 @@ module.exports = {
     }
     sql += `limit ${skip}, ${limit}`;
     return db.load(sql);
-  }
+  },
+
+  async hotCourses(){
+    sql = `
+    select tbl.*, e_.NumSell
+    from
+    ((select table2.*, GROUP_CONCAT(table3.l_Name SEPARATOR ', ') as Lecturers, s.CatName
+    from
+    (select table1.*, count(enrolls.EnrollID) as NumRate, round(avg(enrolls.Rate), 1) as Rate
+    from
+    (select *
+    from courses) as table1
+    left join enrolls on table1.CourseID = enrolls.CourseID
+    group by table1.CourseID) as table2
+    inner join
+    (select o.*, l.l_Name
+    from oncourse o left join lecturers l
+    on o.l_ID = l.l_ID) as table3
+    on table2.CourseID = table3.CourseID
+    inner join categories s
+    on table2.CatID = s.CatID
+    group by table2.CourseID)
+    union
+    (
+    select table1_.*, GROUP_CONCAT(table2_.l_Name SEPARATOR ', ') as Lecturers, s_.CatName
+    from
+    (select c_.*, count(enrolls.EnrollID) as NumRate, round(avg(enrolls.Rate), 1) as Rate
+    from courses c_ left join enrolls on c_.CourseID = enrolls.CourseID
+    group by c_.CourseID) as table1_
+    inner join
+    (select o_.*, l_.l_Name
+    from oncourse o_ left join lecturers l_
+    on o_.l_ID = l_.l_ID) as table2_
+    on table1_.CourseID = table2_.CourseID
+    inner join (select * from categories s1_) as s_
+    on table1_.CatID = s_.CatID
+    group by table1_.CourseID
+    )) as tbl
+    left join
+    (SELECT e.CourseID, count(e.EnrollID) as NumSell FROM enrolls e where e.EnrollDate > NOW() - INTERVAL 1 WEEK group by e.CourseID) as e_
+    on tbl.CourseID = e_.CourseID
+    where tbl.IsDisable = 0
+    order by e_.NumSell desc
+    limit 4
+    `;
+    
+    return db.load(sql);
+  },
+
+  async filterCourses(skip, limit, condition){
+    let sql = `
+      select table1.*, GROUP_CONCAT(table2.l_Name SEPARATOR ', ') as Lecturers, s.CatName
+      from
+      (select c.*, count(enrolls.EnrollID) as NumRate, round(avg(enrolls.Rate), 1) as Rate
+      from courses c left join enrolls on c.CourseID = enrolls.CourseID
+      group by c.CourseID) as table1
+      inner join
+      (select o.*, l.l_Name
+      from oncourse o left join lecturers l
+      on o.l_ID = l.l_ID) as table2
+      on table1.CourseID = table2.CourseID
+      inner join categories s
+      on table1.CatID = s.CatID `;
+    
+    if (condition.CatID !== null || condition.l_ID !== null){
+      sql += 'where ';
+      if (condition.CatID !== null){
+        sql += `table1.CatID = ${condition.CatID} `;
+        if (condition.l_ID !== null){
+          sql += `and table2.l_ID = ${condition.l_ID} `;
+        }
+      }else{
+        sql += `table2.l_ID = ${condition.l_ID} `;
+      }
+    }
+    sql += `group by table1.CourseID
+    limit ${ skip }, ${limit}
+    `;
+    console.log("Condition model:");
+    console.log(condition);
+    return db.load(sql);
+  },
   
+  update(entity, id) {
+    const condition = { CourseID: id };
+    delete entity.CourseID;
+    return db.patch(entity, condition, TBL_COURSES);
+  },
+
 };
