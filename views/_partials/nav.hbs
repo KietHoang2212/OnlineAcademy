@@ -1,11 +1,12 @@
 {{!-- {{#section 'js'}}
 <script>
-  console.log('aaaa');
-  function myFunction(){
-    const query = $("#my-input").val();
-    console.log(query);
-    $('#my-form').attr('action', `/courses/search?query=${query}`);
-  }
+	console.log( 'aaaa' );
+	function myFunction()
+	{
+		const query = $( "#my-input" ).val();
+		console.log( query );
+		$( '#my-form' ).attr( 'action', `/courses/search?query=${ query }` );
+	}
 </script>
 {{/section}} --}}
 
@@ -134,7 +135,5 @@
     </ul>
   </div>
 </nav>
-
-
 
 

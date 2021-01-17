@@ -124,15 +124,30 @@ CREATE TABLE `enrolldetails`  (
   `s_ID` int(11) NOT NULL,
   `ChapterID` int(11) NOT NULL,
   `Time` int(11) NOT NULL,
-  PRIMARY KEY (`ID`) USING BTREE
+  `Done` boolean NOT NULL,
+  PRIMARY KEY (`ID`) USING BTREE,
 ) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;
 
+-- ----------------------------
+-- Table structure for watchlist
+-- ----------------------------
 
-
-
+DROP TABLE IF EXISTS `watchlist`;
+CREATE TABLE `watchlist`  (
+  `wl_ID` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `s_ID` int(11) NOT NULL,
+  `CourseID` int(11) NOT NULL,
+  PRIMARY KEY (`wl_ID`) USING BTREE
+) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;
 #SET FOREIGN_KEY_CHECKS = 1;
 
+alter table courses
+add fulltext(CourseName);
+alter table categories
+add fulltext(CatName);
 
+alter table watchlist add constraint fk_watchlist_students foreign key (s_ID) references students(s_ID);
+alter table watchlist add constraint fk_watchlist_courses foreign key (CourseID) references courses(CourseID);
 ALTER TABLE categories ADD CONSTRAINT fk_categories_categories FOREIGN KEY (CatParentID) REFERENCES categories(CatID);
 ALTER TABLE courses ADD CONSTRAINT fk_courses_categories FOREIGN KEY (CatID) REFERENCES categories(CatID);
 ALTER TABLE chapters ADD CONSTRAINT fk_chapters_courses FOREIGN KEY (CourseID) REFERENCES courses(CourseID);
