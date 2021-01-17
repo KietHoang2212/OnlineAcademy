@@ -13,6 +13,7 @@ app.use( express.urlencoded( {
 } ) );
 
 app.use( '/public', express.static( 'public' ) );
+// app.use(express.static(__dirname + 'public'));
 app.use( require( 'express-session' )( { secret: 'keyboard cat', resave: true, saveUninitialized: true } ) );
 app.use( passport.initialize() );
 app.use( passport.session() );
@@ -24,7 +25,7 @@ require( './middlewares/routes.mdw' )( app );
 require( './middlewares/error.mdw' )( app );
 
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen( PORT, function ()
 {
   console.log( `Example app listening at http://localhost:${ PORT }` );
