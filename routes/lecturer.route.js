@@ -28,7 +28,7 @@ router.get( '/profile', async function ( req, res )
 router.post( '/profile', async function ( req, res )
 {
     await lecturerModel.editProfileOfLecturer( req.body );
-    //console.log(req.body)
+    // console.log(req.body)
     res.redirect( req.headers.referer );
 } );
 //các khóa của lecturer, còn thiếu phần xử lý ảnh của course

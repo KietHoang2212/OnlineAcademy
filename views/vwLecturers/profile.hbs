@@ -125,13 +125,13 @@
     }
     function isValid()
     {
-
+        console.log('Validate');
         const nameValue = formChangeProfile.txtName.value;
         let nameErrNoti = '';
         if ( validateName( nameValue ) === false )
         {
             nameErrNoti = 'Please fill out your correct name!';
-            //console.log( 'Error Name!!!' );
+            console.log( 'Error Name!!!' );
             return false;
         }
         document.getElementById( 'errName' ).innerHTML = errNameNoti;
