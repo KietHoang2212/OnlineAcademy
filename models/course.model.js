@@ -275,7 +275,7 @@ module.exports = {
 	async getCoursesByTotalStudents ( Category, CourseException, MaxCourse )
 	{
 		const sql = `select table1.*, cat.CatName, table1.Price * ( 1 - table1.PricePromotion / 100.0 ) as CurrentPrice
-			from( select c.*, en.EnrollID, count( en.Rate ) as NumRate, avg( en.Rate ) as Rate, count( en.EnrollID ) as TotalStudents 
+			from( select c.*, count( en.Rate ) as NumRate, avg( en.Rate ) as Rate, count( en.EnrollID ) as TotalStudents 
 									from courses c left join  enrolls en on c.CourseID = en.CourseID
 									group by c.CourseID ) as table1
 			inner join categories cat on table1.CatID = cat.CatID
