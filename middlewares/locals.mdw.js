@@ -13,7 +13,7 @@ module.exports = function ( app )
     res.locals.isStudent = ( req.session.role === 'student' );
     res.locals.isLecturer = ( req.session.role === 'lecturer' );
     res.locals.isAdmin = ( req.session.role === 'admin' );
-
+    
     const parent_cats = await categoryModel.allChild( 0 );
     let cats = [];
     for ( let i = 0; i < parent_cats.length; ++i )

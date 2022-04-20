@@ -22,8 +22,4 @@ module.exports = {
             next();
         };
     },
-    // del ( currentLecturer )
-    // {
-
-    // }
 };

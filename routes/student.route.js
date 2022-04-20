@@ -1,10 +1,10 @@
 const express = require( 'express' );
 const moment = require( 'moment' );
 const router = express.Router();
-const lecturerModel = require( '../models/lecturer.model' );
 const courseModel = require( '../models/course.model' );
 const studentModel = require( '../models/students.model' );
 const courseAuth = require( '../middlewares/studentCourseAuth.mdw' );
+
 router.get( '/', async function ( req, res )
 {
     res.redirect( '/student/courses' );
@@ -27,7 +27,7 @@ router.get( '/learn', courseAuth, async function ( req, res )
 router.post( '/save', async function ( req, res )
 {
     data = JSON.parse( req.body );
-    //console.log( data );
+    console.log( 'save progress' );
     let currentIndex = 0;
     let Chapters = [];
     let chapter = new Object();

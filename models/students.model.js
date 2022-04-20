@@ -11,49 +11,56 @@ const TBL = 'students',
 	TBL_WATCHLIST = 'watchlist';
 
 module.exports = {
-  all() {
-    return db.load(`select * from ${TBL}`);
-  },
+	all ()
+	{
+		return db.load( `select * from ${ TBL }` );
+	},
 
-  async single(id) {
-    const rows = await db.load(`select * from ${TBL} where s_ID = ${id}`);
-    if (rows.length === 0)
-      return null;
+	async single ( id )
+	{
+		const rows = await db.load( `select * from ${ TBL } where s_ID = ${ id }` );
+		if ( rows.length === 0 )
+			return null;
 
-    return rows[0];
-  },
+		return rows[ 0 ];
+	},
 
-  async singleByUserName(username) {
-    const rows = await db.load(`select * from ${TBL} where s_Username = '${username}'`);
-    if (rows.length === 0)
-      return null;
+	async singleByUserName ( username )
+	{
+		const rows = await db.load( `select * from ${ TBL } where s_Username = '${ username }'` );
+		if ( rows.length === 0 )
+			return null;
 
-    return rows[0];
-  },
+		return rows[ 0 ];
+	},
 
-  async singleByEmail(email) {
-    const rows = await db.load(`select * from ${TBL} where s_Email = '${email}'`);
-    if (rows.length === 0)
-      return null;
+	async singleByEmail ( email )
+	{
+		const rows = await db.load( `select * from ${ TBL } where s_Email = '${ email }'` );
+		if ( rows.length === 0 )
+			return null;
 
-    return rows[0];
-  },
+		return rows[ 0 ];
+	},
 
-  add(entity) {
-    return db.add(entity, TBL)
-  },
+	add ( entity )
+	{
+		return db.add( entity, TBL );
+	},
 
-  update(entity, id) {
-    const condition = { s_ID: id };
-    delete entity.s_ID;
-    return db.patch(entity, condition, TBL);
-  },
+	update ( entity, id )
+	{
+		const condition = { s_ID: id };
+		delete entity.s_ID;
+		return db.patch( entity, condition, TBL );
+	},
 
-  async delById(id) {
-    const condition = {s_ID: id};
-    return db.del(condition, TBL);
-  },
-  
+	async delById ( id )
+	{
+		const condition = { s_ID: id };
+		return db.del( condition, TBL );
+	},
+
 	async getFavorite ( s_ID, CourseID )
 	{
 		const sql = `select * from ${ TBL_WATCHLIST } where s_ID = ${ s_ID } and CourseID=${ CourseID }`;

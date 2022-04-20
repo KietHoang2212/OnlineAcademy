@@ -7,6 +7,6 @@ module.exports = function auth ( req, res, next )
     return res.redirect( '/account/login' );
   }
   if ( req.session.role === 'lecturer' )
-    return res.redirect( req.headers.referer || '/');
+    return res.redirect( req.headers.referer || '/' );
   next();
-}
+};

@@ -45,12 +45,12 @@ module.exports = {
 		select table1.*, GROUP_CONCAT( table2.l_Name SEPARATOR ', ' ) as Lecturers, table1.Price*(1-table1.PricePromotion/100.0) as CurrentPrice
 		from
 			( select c.*, count( enrolls.EnrollID ) as NumRate, round( avg( enrolls.Rate ), 1 ) as Rate
-	from courses c left join enrolls on c.CourseID = enrolls.CourseID
-	group by c.CourseID ) as table1
+			from courses c left join enrolls on c.CourseID = enrolls.CourseID
+			group by c.CourseID ) as table1
 		inner join
 			( select o.*, l.l_Name
-	from oncourse o left join lecturers l
-	on o.l_ID = l.l_ID ) as table2
+			from oncourse o left join lecturers l
+			on o.l_ID = l.l_ID ) as table2
 		on table1.CourseID = table2.CourseID
 		group by table1.CourseID`;
 		return db.load( sql );
@@ -315,8 +315,9 @@ module.exports = {
 		return db.load( sql );
 	},
 
-  topNewest(num){
-    const sql = `
+	topNewest ( num )
+	{
+		const sql = `
     select table1.*, GROUP_CONCAT(table2.l_Name SEPARATOR ', ') as Lecturers, s.CatName, table1.Price*(1-table1.PricePromotion/100.0) as CurrentPrice
     from
     (select c.*, count(enrolls.EnrollID) as NumRate, round(avg(enrolls.Rate), 1) as Rate
@@ -352,14 +353,15 @@ module.exports = {
     on table1.CourseID = table2.CourseID
     inner join categories s
     on table1.CatID = s.CatID
-    where table1.CatID = ${catID} and table1.IsDisable = 0
+    where table1.CatID = ${ catID } and table1.IsDisable = 0
     group by table1.CourseID
-    limit ${ skip }, ${limit} `;
+    limit ${ skip }, ${ limit } `;
 		return db.load( sql );
 	},
 
-  async fulltextsearch(query, skip, limit, opt){
-    let sql = `
+	async fulltextsearch ( query, skip, limit, opt )
+	{
+		let sql = `
     select tbl.*, (tbl.LastUpdate > NOW() - INTERVAL 1 WEEK) as IsNew, e_.IsBestseller, tbl.Price*(1-tbl.PricePromotion/100.0) as CurrentPrice
     from
     ((select table2.*, GROUP_CONCAT(table3.l_Name SEPARATOR ', ') as Lecturers, s.CatName
@@ -402,17 +404,20 @@ module.exports = {
     on tbl.CourseID = e_.CourseID
     where tbl.IsDisable = 0
     `;
-    if (opt === 1){
-      sql += 'order by tbl.Price asc ';
-    }else if(opt === 2){
-      sql += 'order by tbl.Rate desc ';
-    }
-    sql += `limit ${skip}, ${limit}`;
-    return db.load(sql);
-  },
+		if ( opt === 1 )
+		{
+			sql += 'order by tbl.Price asc ';
+		} else if ( opt === 2 )
+		{
+			sql += 'order by tbl.Rate desc ';
+		}
+		sql += `limit ${ skip }, ${ limit }`;
+		return db.load( sql );
+	},
 
-  async hotCourses(){
-    sql = `
+	async hotCourses ()
+	{
+		sql = `
     select tbl.*, e_.NumSell, tbl.Price*(1-tbl.PricePromotion/100.0) as CurrentPrice
     from
     ((select table2.*, GROUP_CONCAT(table3.l_Name SEPARATOR ', ') as Lecturers, s.CatName
@@ -454,12 +459,13 @@ module.exports = {
     order by e_.NumSell desc
     limit 4
     `;
-    
-    return db.load(sql);
-  },
 
-  async filterCourses(skip, limit, condition){
-    let sql = `
+		return db.load( sql );
+	},
+
+	async filterCourses ( skip, limit, condition )
+	{
+		let sql = `
       select table1.*, GROUP_CONCAT(table2.l_Name SEPARATOR ', ') as Lecturers, s.CatName, table1.Price*(1-table1.PricePromotion/100.0) as CurrentPrice
       from
       (select c.*, count(enrolls.EnrollID) as NumRate, round(avg(enrolls.Rate), 1) as Rate
@@ -472,30 +478,35 @@ module.exports = {
       on table1.CourseID = table2.CourseID
       inner join categories s
       on table1.CatID = s.CatID `;
-    
-    if (condition.CatID !== null || condition.l_ID !== null){
-      sql += 'where ';
-      if (condition.CatID !== null){
-        sql += `table1.CatID = ${condition.CatID} `;
-        if (condition.l_ID !== null){
-          sql += `and table2.l_ID = ${condition.l_ID} `;
-        }
-      }else{
-        sql += `table2.l_ID = ${condition.l_ID} `;
-      }
-    }
-    sql += `group by table1.CourseID
-    limit ${ skip }, ${limit}
+
+		if ( condition.CatID !== null || condition.l_ID !== null )
+		{
+			sql += 'where ';
+			if ( condition.CatID !== null )
+			{
+				sql += `table1.CatID = ${ condition.CatID } `;
+				if ( condition.l_ID !== null )
+				{
+					sql += `and table2.l_ID = ${ condition.l_ID } `;
+				}
+			} else
+			{
+				sql += `table2.l_ID = ${ condition.l_ID } `;
+			}
+		}
+		sql += `group by table1.CourseID
+    limit ${ skip }, ${ limit }
     `;
-    console.log("Condition model:");
-    console.log(condition);
-    return db.load(sql);
-  },
-  
-  update(entity, id) {
-    const condition = { CourseID: id };
-    delete entity.CourseID;
-    return db.patch(entity, condition, TBL_COURSES);
-  },
+		console.log( "Condition model:" );
+		console.log( condition );
+		return db.load( sql );
+	},
+
+	update ( entity, id )
+	{
+		const condition = { CourseID: id };
+		delete entity.CourseID;
+		return db.patch( entity, condition, TBL_COURSES );
+	},
 
 };
